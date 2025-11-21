@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Drawing in Blood</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: #440000;
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    let drawnLines = []; 
+    let centerX, centerY, radius;
+    let isErasing = false;
+    
+    const INITIAL_LINES = 250; 
+    const TOTAL_LINES = 1200;  
+    const LINES_PER_FRAME = 2;
+    const MAX_ATTEMPTS = 50;
+    const DRAW_COLOR = 'rgba(255, 69, 0, '; 
+    const REDRAW_LINE_WIDTH = 0.5;
+    
+    let erasingIndex = 0;
+    
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        centerX = canvas.width / 2;
+        centerY = canvas.height / 2;
+        radius = Math.min(canvas.width, canvas.height) * 0.45; 
+        
+        drawnLines = [];
+        isErasing = false;
+        erasingIndex = 0;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let i = 0; i < INITIAL_LINES; i++) {
+            let attempts = 0;
+            while (attempts < MAX_ATTEMPTS) {
+                if (tryDrawLine(true)) {
+                    break;
+                }
+                attempts++;
+            }
+        }
+    }
+    
+    function tryDrawLine(isInitialDraw = false) {
+        const startX = Math.random() * canvas.width;
+        const startY = Math.random() * canvas.height;
+        const endX = Math.random() * canvas.width;
+        const endY = Math.random() * canvas.height;
+        
+        if (lineIntersectsCircle(startX, startY, endX, endY, centerX, centerY, radius)) {
+            const lineCenterX = (startX + endX) / 2;
+            const lineCenterY = (startY + endY) / 2;
+            
+            const distToCenter = Math.sqrt(
+                Math.pow(lineCenterX - centerX, 2) + 
+                Math.pow(lineCenterY - centerY, 2)
+            );
+            
+            const densityFactor = 1 - (distToCenter / radius); 
+            
+            const currentTotal = isInitialDraw ? INITIAL_LINES : TOTAL_LINES;
+            const progress = drawnLines.length / currentTotal;
+
+            const baseOpacity = 0.05 + progress * 0.15; 
+            const opacity = baseOpacity * (0.5 + densityFactor * 0.5); 
+            
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.strokeStyle = `${DRAW_COLOR}${opacity})`;
+            ctx.lineWidth = REDRAW_LINE_WIDTH;
+            ctx.stroke();
+            
+            drawnLines.push({startX, startY, endX, endY, opacity});
+            return true;
+        }
+        return false;
+    }
+    
+    function redrawLines(upToIndex) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); 
+        
+        for (let i = 0; i < upToIndex; i++) {
+            const line = drawnLines[i];
+            ctx.beginPath();
+            ctx.moveTo(line.startX, line.startY);
+            ctx.lineTo(line.endX, line.endY);
+            ctx.strokeStyle = `${DRAW_COLOR}${line.opacity})`;
+            ctx.lineWidth = REDRAW_LINE_WIDTH;
+            ctx.stroke();
+        }
+    }
+    
+    function lineIntersectsCircle(x1, y1, x2, y2, cx, cy, r) {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const fx = x1 - cx;
+        const fy = y1 - cy;
+        
+        const a = dx * dx + dy * dy;
+        const b = 2 * (fx * dx + fy * dy);
+        const c = (fx * fx + fy * fy) - r * r;
+        
+        const discriminant = b * b - 4 * a * c;
+        
+        if (discriminant < 0) {
+            return false; 
+        }
+        
+        const sqrtDisc = Math.sqrt(discriminant);
+        const t1 = (-b - sqrtDisc) / (2 * a);
+        const t2 = (-b + sqrtDisc) / (2 * a);
+        
+        if ((t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1) || (t1 < 0 && t2 > 1)) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    function animate() {
+        if (!isErasing) {
+            if (drawnLines.length < TOTAL_LINES) {
+                let attempts = 0;
+                
+                for (let i = 0; i < LINES_PER_FRAME; i++) {
+                    attempts = 0;
+                    while (attempts < MAX_ATTEMPTS && drawnLines.length < TOTAL_LINES) {
+                        if (tryDrawLine()) {
+                            break; 
+                        }
+                        attempts++;
+                    }
+                }
+                requestAnimationFrame(animate); 
+            } else {
+                isErasing = true;
+                erasingIndex = drawnLines.length;
+                setTimeout(() => requestAnimationFrame(animate), 500); 
+            }
+        } 
+        
+        else {
+            if (erasingIndex > INITIAL_LINES) { 
+                erasingIndex -= LINES_PER_FRAME; 
+                if (erasingIndex < INITIAL_LINES) erasingIndex = INITIAL_LINES; 
+                
+                redrawLines(erasingIndex); 
+                requestAnimationFrame(animate);
+            } else {
+                isErasing = false;
+                redrawLines(INITIAL_LINES); 
+                setTimeout(() => requestAnimationFrame(animate), 500); 
+            }
+        }
+    }
+    
+    window.addEventListener('resize', () => {
+        resizeCanvas(); 
+    });
+    
+    resizeCanvas();
+    animate();
+</script>
+</body>
+</html>

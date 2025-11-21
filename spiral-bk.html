@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spiral Animation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            background: #000;
+            font-family: 'Arial', sans-serif;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100vh;
+        }
+
+
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height, centerX, centerY;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            centerX = width / 2;
+            centerY = height / 2;
+        }
+
+        resize();
+        window.addEventListener('resize', resize);
+
+        let animationPhase = 0; // 0: expanding, 1: white flash, 2: resetting
+        let flashOpacity = 0;
+        const flashDuration = 30; // frames
+        let flashFrame = 0;
+        let animationStartTime = Date.now();
+        const maxAnimationDuration = 20000; // 20 seconds in milliseconds
+
+        class Particle {
+            constructor(angle, distance, color, speed) {
+                this.angle = angle;
+                this.distance = distance;
+                this.initialDistance = distance;
+                this.color = color;
+                this.speed = speed;
+                this.baseSize = 5;
+                this.size = this.baseSize;
+                this.ellipseRatio = 1;
+                this.rotation = 0;
+            }
+
+            reset() {
+                this.distance = this.initialDistance;
+                this.size = this.baseSize;
+                this.ellipseRatio = 1;
+            }
+
+            update() {
+                if (animationPhase === 0) {
+                    this.distance += this.speed;
+                    this.size = this.baseSize + (this.distance / this.initialDistance) * 10;
+                    this.ellipseRatio = 1 + (this.distance / this.initialDistance) * 0.3;
+                    this.rotation += 0.01;
+                }
+            }
+
+            draw() {
+                const x = centerX + Math.cos(this.angle) * this.distance;
+                const y = centerY + Math.sin(this.angle) * this.distance;
+                
+                const fadeStart = Math.max(width, height) * 0.7;
+                const alpha = this.distance > fadeStart 
+                    ? 1 - (this.distance - fadeStart) / (Math.max(width, height) - fadeStart)
+                    : 1;
+
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(this.rotation);
+                
+                ctx.globalCompositeOperation = 'lighter';
+                
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.size);
+                gradient.addColorStop(0, this.color.replace(')', `, ${alpha * 0.8})`));
+                gradient.addColorStop(0.5, this.color.replace(')', `, ${alpha * 0.4})`));
+                gradient.addColorStop(1, this.color.replace(')', `, 0)`));
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, this.size, this.size * this.ellipseRatio, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+
+        const particles = [];
+        const colors = [
+            'rgba(255, 255, 255',    // white
+            'rgba(200, 200, 200',    // light gray
+            'rgba(150, 150, 150',    // gray
+            'rgba(180, 180, 180',    // light gray 2
+            'rgba(220, 220, 220',    // very light gray
+            'rgba(170, 170, 170'     // gray 2
+        ];
+
+        function initParticles() {
+            particles.length = 0;
+            const spiralCount = 8;
+            const particlesPerSpiral = 50;
+            
+            for (let s = 0; s < spiralCount; s++) {
+                const spiralOffset = (Math.PI * 2 / spiralCount) * s;
+                const colorIndex = s % colors.length;
+                const speed = 0.25 + (s * 0.05);
+                
+                for (let i = 0; i < particlesPerSpiral; i++) {
+                    const angle = spiralOffset + (i * 0.2);
+                    const distance = 30 + (i * 15);
+                    
+                    particles.push(new Particle(
+                        angle,
+                        distance,
+                        colors[colorIndex],
+                        speed
+                    ));
+                }
+            }
+        }
+
+        initParticles();
+
+        function animate() {
+            const currentTime = Date.now();
+            const elapsedTime = currentTime - animationStartTime;
+            
+            // Check if 20 seconds passed or all particles are off screen
+            const allOffScreen = particles.every(p => p.distance > Math.max(width, height) * 1.2);
+            const timeExpired = elapsedTime > maxAnimationDuration;
+            
+            if (animationPhase === 0 && (allOffScreen || timeExpired)) {
+                animationPhase = 1;
+                flashFrame = 0;
+            }
+
+            // Normal background fade
+            if (animationPhase === 0) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+                ctx.fillRect(0, 0, width, height);
+
+                ctx.globalCompositeOperation = 'lighter';
+                particles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                });
+            }
+
+            // White flash phase
+            else if (animationPhase === 1) {
+                flashFrame++;
+                flashOpacity = Math.min(1, flashFrame / flashDuration);
+                
+                // Continue drawing particles during flash
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, width, height);
+                
+                ctx.globalCompositeOperation = 'lighter';
+                particles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                });
+                
+                // Overlay white flash
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.fillStyle = `rgba(255, 255, 255, ${flashOpacity})`;
+                ctx.fillRect(0, 0, width, height);
+                
+                if (flashOpacity >= 1) {
+                    animationPhase = 2;
+                }
+            }
+
+            // Reset phase
+            else if (animationPhase === 2) {
+                ctx.fillStyle = 'rgb(0, 0, 0)';
+                ctx.fillRect(0, 0, width, height);
+                
+                particles.forEach(particle => particle.reset());
+                animationPhase = 0;
+                flashOpacity = 0;
+                flashFrame = 0;
+                animationStartTime = Date.now(); // Reset timer
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

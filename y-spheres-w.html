@@ -35,20 +35,18 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         
-        let ellipses = []; // 노란 계열의 부유하는 타원
-        let whiteCircles = []; // 작은 흰 원
+        let ellipses = []; 
+        let whiteCircles = []; 
         let time = 0;
         let ellipseIdCounter = 0;
         
-        // --- Configuration (설정) ---
         const MAX_WHITE_CIRCLES = 120; 
         const WHITE_CIRCLE_RADIUS = 3;
-        const INITIAL_ELLIPSE_COUNT = 15; // 🎯 노란 타원 개수를 15개로 설정
+        const INITIAL_ELLIPSE_COUNT = 15; 
         const ELLIPSE_MIN_RADIUS = 120;
         const ELLIPSE_MAX_RADIUS_X_OFFSET = 150;
         const ELLIPSE_MAX_RADIUS_Y_OFFSET = 180;
         const ELLIPSE_NUM_POINTS = 24;
-        // ---------------------
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -56,10 +54,6 @@
             initEllipses();
             initCircles();
         }
-        
-        // ====================================================
-        // Ellipse Class (노란 계열의 부유 타원)
-        // ====================================================
         
         class Ellipse {
             constructor() {
@@ -137,7 +131,6 @@
                 
                 const maxRadius = Math.max(this.radiusX, this.radiusY) * 1.3;
                 
-                // 1. Outer Glow
                 const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, maxRadius);
                 gradient.addColorStop(0, `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, 0.3)`);
                 gradient.addColorStop(0.6, `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, 0.12)`);
@@ -147,7 +140,6 @@
                 this.drawShape(ctx, points);
                 ctx.fill();
                 
-                // 2. Inner Highlight
                 const innerGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, maxRadius * 0.3);
                 innerGradient.addColorStop(0, `rgba(255, 255, 255, 0.4)`);
                 innerGradient.addColorStop(1, `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, 0)`);
@@ -160,7 +152,6 @@
                 ctx.restore();
             }
 
-            // 공통 그리기 로직
             drawShape(ctx, points) {
                 ctx.beginPath();
                 for (let i = 0; i < ELLIPSE_NUM_POINTS; i++) {
@@ -182,16 +173,11 @@
         }
 
         function initEllipses() {
-            // 🎯 노란 타원 15개 생성
             ellipses = [];
             for (let i = 0; i < INITIAL_ELLIPSE_COUNT; i++) {
                 ellipses.push(new Ellipse());
             }
         }
-        
-        // ====================================================
-        // WhiteCircle Class (작은 흰 원)
-        // ====================================================
         
         class WhiteCircle {
             constructor() {
@@ -199,7 +185,6 @@
             }
             
             reset() {
-                // 화면 밖에서 랜덤하게 생성되어 중앙으로 들어옴
                 const side = Math.floor(Math.random() * 4); 
                 
                 if (side === 0) { 
@@ -218,7 +203,6 @@
 
                 this.radius = WHITE_CIRCLE_RADIUS;
                 
-                // 중앙을 향한 속도 계산
                 const targetX = canvas.width / 2;
                 const targetY = canvas.height / 2;
                 const angle = Math.atan2(targetY - this.y, targetX - this.x);
@@ -233,7 +217,6 @@
             
             update() {
                 if (this.isCollided) {
-                    // 충돌 후 서서히 사라지는(페이드 아웃) 효과
                     this.alpha -= 0.04; 
                     this.radius *= 0.95; 
                 } else {
@@ -258,12 +241,7 @@
             whiteCircles = [];
         }
         
-        // ====================================================
-        // Collision Logic (흰 원 vs 노란 타원)
-        // ====================================================
-
         function checkCollisions() {
-            // 노란 타원 수가 줄어들어 충돌 검사 성능이 더욱 향상됨 (15회 루프)
             for (let i = whiteCircles.length - 1; i >= 0; i--) {
                 const wC = whiteCircles[i];
                 
@@ -287,33 +265,25 @@
             }
         }
 
-        // ====================================================
-        // Animation Loop
-        // ====================================================
-
         function animate() {
             time++;
             
             ctx.fillStyle = 'rgba(245, 243, 240, 0.12)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // 1. 노란 타원 업데이트 및 그리기 (15회)
             ctx.globalCompositeOperation = 'multiply';
             ellipses.forEach(ellipse => {
                 ellipse.update(time);
                 ellipse.draw();
             });
             
-            // 2. 흰 원 생성
             ctx.globalCompositeOperation = 'source-over'; 
             if (whiteCircles.length < MAX_WHITE_CIRCLES && time % 3 === 0) {
                 whiteCircles.push(new WhiteCircle());
             }
             
-            // 3. 충돌 감지
             checkCollisions();
             
-            // 4. 흰 원 업데이트, 그리기 및 제거
             for (let i = whiteCircles.length - 1; i >= 0; i--) {
                 const wC = whiteCircles[i];
                 wC.update();

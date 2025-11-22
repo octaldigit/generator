@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Plankton Swarm (Slightly Brighter Dark Background)</title>
+    <title>Underwater Plankton Swarm (Blue Cyan)</title>
     <style>
         * {
             margin: 0;
@@ -15,8 +15,7 @@
             width: 100%;
             height: 100vh;
             overflow: hidden;
-            /* 🎯 배경색을 조금 더 밝은 짙은 슬레이트 블루로 변경 */
-            background: #00e5ff; 
+            background: #252176; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -41,26 +40,20 @@
         let ellipseIdCounter = 0;
         let isErasing = false;
         
-        // --- Configuration (설정) ---
         const CONFIG = {
             startCount: 30,         
             maxCount: 200,          
-            numPoints: 32,
-            collisionCooldown: 180,
-            erasingSpeed: 2,
-            tension: 0.5
+            numPoints: 32,          
+            collisionCooldown: 180, 
+            erasingSpeed: 2,        
+            tension: 0.5            
         };
-        // ---------------------
         
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             initEllipses();
         }
-        
-        // ====================================================
-        // Ellipse Class (형광 푸른 계열의 플랑크톤 타원)
-        // ====================================================
         
         class Ellipse {
             constructor() {
@@ -78,23 +71,22 @@
                 this.baseRadiusX = 100 + Math.random() * 120;
                 this.baseRadiusY = 120 + Math.random() * 150;
                 
-                this.speedX = (Math.random() - 0.5) * 0.1;
+                this.speedX = (Math.random() - 0.5) * 0.1; 
                 this.speedY = (Math.random() - 0.5) * 0.1;
                 this.phaseX = Math.random() * Math.PI * 2;
                 this.phaseY = Math.random() * Math.PI * 2;
                 this.floatAmplitude = 50 + Math.random() * 100;
-                this.morphSpeed = 0.0003 + Math.random() * 0.0007;
+                this.morphSpeed = 0.0003 + Math.random() * 0.0007; 
                 this.morphPhase = Math.random() * Math.PI * 2;
                 this.rotation = Math.random() * Math.PI * 2;
                 this.rotationSpeed = (Math.random() - 0.5) * 0.001;
                 
-                // 형광 푸른색/청록색 (Neon Blue/Cyan) 설정
-                const neonBase = 180 + Math.floor(Math.random() * 50); 
-                const variation = Math.floor(Math.random() * 50); 
+                const blueBase = 150 + Math.floor(Math.random() * 105);
+                const variation = Math.floor(Math.random() * 30);
                 this.color = [
-                    Math.floor(Math.random() * 30), 
-                    Math.min(255, neonBase + variation), 
-                    255 
+                    Math.max(0, blueBase - variation - 150),
+                    blueBase - Math.floor(variation * 0.2),
+                    blueBase + variation
                 ];
                 
                 this.points = new Array(CONFIG.numPoints);
@@ -182,17 +174,15 @@
                 
                 const maxRadius = Math.max(this.radiusX, this.radiusY) * 1.3;
                 
-                // 1. Outer Glow (바깥 확산광)
                 const g1 = ctx.createRadialGradient(0, 0, 0, 0, 0, maxRadius);
-                g1.addColorStop(0, `rgba(${this.color[0]},${this.color[1]},${this.color[2]},0.3)`); 
+                g1.addColorStop(0, `rgba(${this.color[0]},${this.color[1]},${this.color[2]},0.2)`); 
                 g1.addColorStop(0.6, `rgba(${this.color[0]},${this.color[1]},${this.color[2]},0.1)`);
                 g1.addColorStop(1, `rgba(${this.color[0]},${this.color[1]},${this.color[2]},0)`);
                 ctx.fillStyle = g1;
                 this.drawShape(this.points, 1);
                 
-                // 2. Inner Highlight (내부 발광 하이라이트) - 밝기 유지
                 const g2 = ctx.createRadialGradient(0, 0, 0, 0, 0, maxRadius * 0.3);
-                g2.addColorStop(0, 'rgba(255,255,255,0.7)'); 
+                g2.addColorStop(0, 'rgba(195,255,255,0.4)'); 
                 g2.addColorStop(1, `rgba(${this.color[0]},${this.color[1]},${this.color[2]},0)`);
                 ctx.fillStyle = g2;
                 this.drawShape(this.points, 0.4);
@@ -236,16 +226,10 @@
             }
         }
         
-        // ====================================================
-        // Animation Loop
-        // ====================================================
-        
         function animate() {
             time++;
             
-            // 🎯 배경 잔상 효과 (새로운 배경색의 RGBA 값으로 업데이트)
-            // #192A40 => rgba(25, 42, 64)
-            ctx.fillStyle = 'rgba(25, 42, 64, 0.06)'; 
+            ctx.fillStyle = 'rgba(13,26,41,0.05)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             const len = ellipses.length;
@@ -278,18 +262,18 @@
                 if (ellipses.length >= CONFIG.maxCount) isErasing = true;
             } else {
                 if (len > CONFIG.startCount && time % CONFIG.erasingSpeed === 0) {
-                    ellipses.pop();
+                    ellipses.pop(); 
                 } else if (len <= CONFIG.startCount) {
                     isErasing = false;
                     setTimeout(() => {
                         for (let i = 0; i < ellipses.length; i++) {
-                            ellipses[i].lastCollisionTime = 0;
+                            ellipses[i].lastCollisionTime = 0; 
                         }
                     }, 1000);
                 }
             }
             
-            ctx.globalCompositeOperation = 'multiply';
+            ctx.globalCompositeOperation = 'multiply'; 
             
             for (let i = 0; i < ellipses.length; i++) {
                 ellipses[i].update(time);

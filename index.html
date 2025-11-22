@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>김건우 교수 제18회 개인전 GENERATOR</title>
+    <style>
+        /* 기본 스타일 설정 */
+        body {
+            /* 배경: 화이트, 텍스트: 블랙 */
+            background-color: #FFFFFF;
+            color: #000000;
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            text-align: center; /* 모든 내용을 중앙 정렬 */
+        }
+
+        /* 컨테이너: 최대 너비를 설정하여 PC에서 너무 넓어지는 것을 방지하고, 중앙에 배치 */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 제목 스타일 */
+        h1 {
+            font-size: 2.5em; /* PC 환경에서 큰 글씨 */
+            font-weight: bold;
+            margin-bottom: 0.5em;
+        }
+
+        /* 부제 스타일 */
+        h2 {
+            font-size: 1.5em;
+            font-weight: normal;
+            margin-top: 0;
+            margin-bottom: 2em;
+        }
+
+        /* 상세 정보 섹션 스타일 */
+        .details p {
+            font-size: 1.1em;
+            margin: 0.5em 0;
+        }
+
+        /* --- 작품 목록 스타일 --- */
+        .works {
+            margin-top: 3em;
+            text-align: left; /* 목록은 왼쪽 정렬 */
+            padding: 0 20px; /* 좌우 여백 추가 */
+        }
+        
+        .works h3 {
+            font-size: 1.3em;
+            text-align: center; /* 작품 목록 제목은 중앙 정렬 */
+            margin-bottom: 1.5em;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 10px;
+        }
+
+        .works ul {
+            list-style: none; /* 기본 리스트 마커 제거 */
+            padding: 0;
+        }
+
+        .works li {
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .works li a {
+            color: #000000; /* 링크 색상 블랙 */
+            text-decoration: none; /* 밑줄 제거 */
+            display: block; /* 링크 영역 확장 */
+            padding: 5px 0;
+            border-bottom: 1px dashed #AAAAAA; /* 구분선 */
+        }
+
+        .works li a:hover {
+            color: #555555; /* 마우스 오버 시 색상 변경 */
+        }
+
+        /* ---------------------------------- */
+        /* 반응형 디자인: 미디어 쿼리 (모바일 최적화) */
+        /* 화면 너비가 600px 이하일 때 적용 */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.2em;
+                margin-bottom: 1.5em;
+            }
+
+            .details p {
+                font-size: 1em;
+            }
+
+            .works {
+                padding: 0 10px; /* 모바일에서 좌우 여백 줄이기 */
+            }
+
+            .works h3 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>김건우 교수 제18회 개인전</h1>
+        
+        <h2>GENERATOR</h2>
+
+        <div class="details">
+            <p><strong>일시:</strong> 2025년 12월 8일(월) ~ 14일(일)</p>
+            
+            <p><strong>장소:</strong> 울산대학교 갤러리 31</p>
+        </div>
+
+        <div class="works">
+            <h3>전시 작품 (Generative Works)</h3>
+            <ul>
+                <li><a href="https://octaldigit.github.io/generator/hemoglobin" target="_blank"><strong>Work #01</strong> - hemoglobin</a></li>
+                <li><a href="https://octaldigit.github.io/generator/line-blood.html" target="_blank"><strong>Work #02</strong> - line-blood</a></li>
+                <li><a href="https://octaldigit.github.io/generator/line-circle.html" target="_blank"><strong>Work #03</strong> - line-circle</a></li>
+                <li><a href="https://octaldigit.github.io/generator/Plankton.html" target="_blank"><strong>Work #04</strong> - Plankton</a></li>
+                <li><a href="https://octaldigit.github.io/generator/spiral-bk.html" target="_blank"><strong>Work #05</strong> - spiral-bk</a></li>
+                <li><a href="https://octaldigit.github.io/generator/spiral-random.html" target="_blank"><strong>Work #06</strong> - spiral-random</a></li>
+                <li><a href="https://octaldigit.github.io/generator/y-ellipses.html" target="_blank"><strong>Work #07</strong> - y-ellipses</a></li>
+                <li><a href="https://octaldigit.github.io/generator/y-spheres-w.html" target="_blank"><strong>Work #08</strong> - y-spheres-w</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

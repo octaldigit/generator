@@ -43,8 +43,7 @@
         resize();
         window.addEventListener('resize', resize);
 
-        // Animation settings
-        let animationPhase = 0; // 0: expanding (random diffusion), 1: contracting (convergence), 2: white flash, 3: resetting
+        let animationPhase = 0;
         let flashOpacity = 0;
         const FLASH_DURATION_FRAMES = 30;
         let flashFrame = 0;
@@ -52,7 +51,6 @@
         const MAX_ANIMATION_DURATION_MS = 20000;
         const FADE_START_RATIO = 0.7;
 
-        // Background Noise (Particle) settings
         const BACKGROUND_PARTICLE_COUNT = 100;
         const backgroundParticles = [];
         const BG_PARTICLE_SPEED = 0.05;
@@ -106,16 +104,14 @@
                 this.size = this.baseSize;
                 this.ellipseRatio = 1;
                 this.rotation = 0;
-                this.MAX_SIZE_MULTIPLIER = 3.0; // 최대 크기 제한 (300%)
+                this.MAX_SIZE_MULTIPLIER = 3.0;
 
-                // Random diffusion properties
                 const randomAngle = Math.random() * Math.PI * 2;
                 this.directionX = Math.cos(randomAngle);
                 this.directionY = Math.sin(randomAngle);
                 this.currentX = centerX + Math.cos(this.angle) * this.distance;
                 this.currentY = centerY + Math.sin(this.angle) * this.distance;
 
-                // 움직임 랜덤성을 위한 노이즈 계수
                 this.noiseOffset = Math.random() * 1000;
             }
 
@@ -132,12 +128,10 @@
                 const distanceRatio = this.distance / this.initialDistance;
                 const accelerationFactor = 1.0 + Math.pow(distanceRatio * 0.5, 0.5); 
                 
-                // 랜덤 노이즈 추가 (시간에 따라 미세하게 방향 변경)
                 const randomNoiseX = Math.sin(Date.now() * 0.001 + this.noiseOffset) * 0.05;
                 const randomNoiseY = Math.cos(Date.now() * 0.001 + this.noiseOffset) * 0.05;
 
                 if (animationPhase === 0) {
-                    // Expansion: Move in random direction + micro-noise
                     this.currentX += (this.directionX + randomNoiseX) * this.speed * accelerationFactor * 0.5;
                     this.currentY += (this.directionY + randomNoiseY) * this.speed * accelerationFactor * 0.5;
                     
@@ -149,7 +143,6 @@
                     this.rotation += 0.01;
 
                 } else if (animationPhase === 1) {
-                    // Contraction: Converge back to center
                     const dx = centerX - this.currentX;
                     const dy = centerY - this.currentY;
                     const distToCenter = Math.sqrt(dx * dx + dy * dy);
@@ -158,13 +151,11 @@
                         const normalizedDx = dx / distToCenter;
                         const normalizedDy = dy / distToCenter;
                         
-                        // 수렴 시에도 노이즈를 적용하여 진동하는 듯한 느낌 부여
                         const movementFactor = this.speed * accelerationFactor * 0.5;
                         this.currentX += (normalizedDx * movementFactor) + (randomNoiseX * 0.5);
                         this.currentY += (normalizedDy * movementFactor) + (randomNoiseY * 0.5);
                         this.distance = distToCenter;
                     } else {
-                        // 원래 위치에 정지
                         this.currentX = centerX + Math.cos(this.angle) * this.initialDistance;
                         this.currentY = centerY + Math.sin(this.angle) * this.initialDistance;
                         this.distance = this.initialDistance;
@@ -173,7 +164,6 @@
                     this.rotation -= 0.01;
                 }
                 
-                // 크기 제한 적용 (최대 300%)
                 const calculatedSize = this.baseSize + (this.distance / this.initialDistance) * 10;
                 this.size = Math.min(calculatedSize, this.baseSize * this.MAX_SIZE_MULTIPLIER);
                 
@@ -264,7 +254,6 @@
             const timeExpired = elapsedTime > MAX_ANIMATION_DURATION_MS;
             const allReturned = particles.every(p => p.distance <= p.initialDistance + 5); 
             
-            // State transitions
             if (animationPhase === 0 && (allOffScreen || timeExpired)) {
                 animationPhase = 1; 
             }
@@ -274,7 +263,6 @@
                 flashFrame = 0;
             }
             
-            // 1. Draw solid background and noise particles
             ctx.fillStyle = 'rgb(85, 0, 0)';
             ctx.fillRect(0, 0, width, height);
 
@@ -285,9 +273,7 @@
             });
 
 
-            // 2. Expanding or Contracting Phase (0 or 1)
             if (animationPhase === 0 || animationPhase === 1) {
-                // Trail effect overlay
                 ctx.fillStyle = 'rgba(85, 0, 0, 0.05)'; 
                 ctx.fillRect(0, 0, width, height);
 
@@ -298,12 +284,10 @@
                 });
             }
 
-            // 3. White Flash Phase (2)
             else if (animationPhase === 2) {
                 flashFrame++;
                 flashOpacity = Math.min(1, flashFrame / FLASH_DURATION_FRAMES);
                 
-                // Maintain trail effect
                 ctx.fillStyle = 'rgba(85, 0, 0, 0.05)';
                 ctx.fillRect(0, 0, width, height);
                 
@@ -312,7 +296,6 @@
                     particle.draw();
                 });
                 
-                // White flash overlay
                 ctx.globalCompositeOperation = 'source-over';
                 ctx.fillStyle = `rgba(255, 255, 255, ${flashOpacity})`;
                 ctx.fillRect(0, 0, width, height);
@@ -322,9 +305,7 @@
                 }
             }
 
-            // 4. Reset Phase (3)
             else if (animationPhase === 3) {
-                // Clear background
                 ctx.fillStyle = 'rgb(85, 0, 0)';
                 ctx.fillRect(0, 0, width, height);
                 

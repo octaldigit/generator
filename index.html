@@ -5,66 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>김건우교수 제18회 개인전 GENERATOR</title>
     <style>
-        /* 기본 스타일 설정 */
         body {
-            /* 배경: 화이트, 텍스트: 블랙 */
             background-color: #fefeff;
             color: #333333;
             font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
             line-height: 1.6;
             margin: 0;
             padding: 20px;
-            text-align: center; /* 모든 내용을 중앙 정렬 */
+            text-align: center;
+            position: relative;
+            padding-bottom: 50px;
         }
 
-        /* 컨테이너: 최대 너비를 설정하여 PC에서 너무 넓어지는 것을 방지하고, 중앙에 배치 */
         .container {
             max-width: 900px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        /* 제목 스타일 */
         h1 {
-            font-size: 2.5em; /* PC 환경에서 큰 글씨 */
+            font-size: 2.5em;
             font-weight: bold;
             margin-bottom: 0.5em;
         }
 
-        /* 부제 (GENERATOR) 스타일 수정 */
         h3 {
-            font-size: 2.0em; /* 기존 1.3em에서 2.0em으로 사이즈 증가 */
+            font-size: 2.0em;
             font-weight: bold;
-            color: #595959; /* 색상 #555555로 변경 */
-            margin-top: 0.5em; /* 위쪽 마진 추가 */
-            margin-bottom: 2em; /* 아래쪽 마진 유지 */
-            border-bottom: none; /* 작품 목록 제목과 구분하기 위해 선 제거 */
+            color: #595959;
+            margin-top: 0.5em;
+            margin-bottom: 2em;
+            border-bottom: none;
             padding-bottom: 0;
         }
-        /* 기존 작품 목록 h3 스타일은 .works h3으로 관리됩니다. */
 
-
-        /* 상세 정보 섹션 스타일 */
         .details p {
             font-size: 1.1em;
             margin: 0.5em 0;
         }
-        
-        /* Garamond 계열 서체 적용을 위한 클래스 */
-        .garamond-style {
-            /* Garamond, Palatino, Times New Roman 계열로 변경 */
-            font-family: Garamond, 'Palatino Linotype', Palatino, 'Times New Roman', Times, serif;
-        }
 
-
-        /* --- 작품 목록 스타일 --- */
         .works {
             margin-top: 3em;
-            text-align: left; /* 목록은 왼쪽 정렬 */
-            padding: 0 20px; /* 좌우 여백 추가 */
+            text-align: left;
+            padding: 0 20px;
         }
         
-        /* 작품 목록 제목 스타일 (기존 h3에서 변경되지 않음) */
         .works h2 {
             font-size: 1.5em;
             font-weight: normal;
@@ -72,16 +57,16 @@
             margin-bottom: 2em;
         }
 
-        .works h3 { /* 이 h3은 'Generative Works'가 아닌, 목록 내부의 다른 제목에 대비하여 남겨둡니다. */
+        .works h3 {
             font-size: 1.3em;
-            text-align: center; /* 작품 목록 제목은 중앙 정렬 */
+            text-align: center;
             margin-bottom: 1.5em;
             border-bottom: 2px solid #000000;
             padding-bottom: 10px;
         }
         
         .works ul {
-            list-style: none; /* 기본 리스트 마커 제거 */
+            list-style: none;
             padding: 0;
         }
 
@@ -91,32 +76,39 @@
         }
 
         .works li a {
-            color: #000000; /* 링크 색상 블랙 */
-            text-decoration: none; /* 밑줄 제거 */
-            display: block; /* 링크 영역 확장 */
+            color: #000000;
+            text-decoration: none;
+            display: block;
             padding: 5px 0;
-            border-bottom: 1px dashed #AAAAAA; /* 구분선 */
+            border-bottom: 1px dashed #AAAAAA;
         }
 
         .works li a:hover {
-            color: #555555; /* 마우스 오버 시 색상 변경 */
+            color: #555555;
         }
-
-        /* ---------------------------------- */
-        /* 반응형 디자인: 미디어 쿼리 (모바일 최적화) */
-        /* 화면 너비가 600px 이하일 때 적용 */
+        
+        .footer-info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.8em;
+            color: #ff00bb;
+            text-align: right;
+            z-index: 1000;
+        }
+        
         @media (max-width: 600px) {
             body {
                 padding: 10px;
+                padding-bottom: 40px;
             }
             
             h1 {
                 font-size: 1.8em;
             }
 
-            /* 모바일에서 GENERATOR 사이즈 조정 */
             h3 { 
-                font-size: 1.5em; /* 모바일에서 너무 크지 않도록 조정 */
+                font-size: 1.5em;
                 margin-bottom: 1.5em;
             }
 
@@ -125,11 +117,16 @@
             }
 
             .works {
-                padding: 0 10px; /* 모바일에서 좌우 여백 줄이기 */
+                padding: 0 10px;
             }
 
             .works h3 {
                 font-size: 1.2em;
+            }
+
+            .footer-info {
+                bottom: 10px;
+                right: 10px;
             }
         }
     </style>
@@ -141,7 +138,7 @@
         <h3>GENERATOR</h3> <div class="details">
             <p><strong>2025. 12. 8 (月)~ 12. 14 (日)</strong></p>
             
-            <p class="garamond-style"><strong>울산대학교 28호관 Gallery 31</strong></p>
+            <p><strong>울산대학교 28호관 Gallery 31</strong></p>
         </div>
 
         <div class="works">
@@ -156,9 +153,17 @@
                 <li><a href="https://octaldigit.github.io/generator/line-blood.html" target="_blank"><strong>Work #07</strong> - Neurotransmission</a></li>
                 <li><a href="https://octaldigit.github.io/generator/synapse.html" target="_blank"><strong>Work #08</strong> - Synapse</a></li>
                 <li><a href="https://octaldigit.github.io/generator/hemoglobin.html" target="_blank"><strong>Work #09</strong> - Hemoglobin</a></li>
+                <li><a href="https://octaldigit.github.io/generator/Serotonin.html" target="_blank"><strong>Work #10</strong> - Serotonin</a></li>
                 
             </ul>
         </div>
+    </div>
+    
+    <div class="footer-info">
+        OS: iOS, android, Windows, MacOS<br>
+        Browser: Chrome, Safari, Edge, Firefox<br>
+        Display Brightness: Max<br>
+        Time: 30sec~160sec/work
     </div>
 </body>
 </html>

@@ -42,10 +42,7 @@
         
         const MAX_WHITE_CIRCLES = 120; 
         const WHITE_CIRCLE_RADIUS = 3;
-        const INITIAL_ELLIPSE_COUNT = 15; 
-        const ELLIPSE_MIN_RADIUS = 120;
-        const ELLIPSE_MAX_RADIUS_X_OFFSET = 150;
-        const ELLIPSE_MAX_RADIUS_Y_OFFSET = 180;
+        
         const ELLIPSE_NUM_POINTS = 24;
 
         function resizeCanvas() {
@@ -67,8 +64,14 @@
                 this.baseX = this.x;
                 this.baseY = this.y;
                 
-                this.baseRadiusX = ELLIPSE_MIN_RADIUS + Math.random() * ELLIPSE_MAX_RADIUS_X_OFFSET;
-                this.baseRadiusY = ELLIPSE_MIN_RADIUS + Math.random() * ELLIPSE_MAX_RADIUS_Y_OFFSET;
+                const BASE_RADIUS_SCALE = Math.min(canvas.width, canvas.height) / 6;
+                
+                const MIN_R = BASE_RADIUS_SCALE * 0.5;
+                const MAX_X_OFFSET = BASE_RADIUS_SCALE * 0.8;
+                const MAX_Y_OFFSET = BASE_RADIUS_SCALE * 1.0;
+
+                this.baseRadiusX = MIN_R + Math.random() * MAX_X_OFFSET;
+                this.baseRadiusY = MIN_R + Math.random() * MAX_Y_OFFSET;
                 
                 this.speedX = (Math.random() - 0.5) * 0.15;
                 this.speedY = (Math.random() - 0.5) * 0.15;
@@ -178,7 +181,23 @@
 
         function initEllipses() {
             ellipses = [];
-            for (let i = 0; i < INITIAL_ELLIPSE_COUNT; i++) {
+            
+            const MIN_ELLIPSE_COUNT_HARD_CAP = 16;
+            const MAX_ELLIPSE_COUNT_HARD_CAP = 256;
+            
+            const MIN_PIXEL_AREA_PER_ELLIPSE = 30000;
+            
+            const screenArea = canvas.width * canvas.height;
+            
+            const MAX_ELLIPSE_COUNT_DYNAMIC = Math.floor(screenArea / MIN_PIXEL_AREA_PER_ELLIPSE);
+            
+            const actualMaxCount = Math.min(MAX_ELLIPSE_COUNT_DYNAMIC, MAX_ELLIPSE_COUNT_HARD_CAP);
+            
+            const rangeMax = Math.max(MIN_ELLIPSE_COUNT_HARD_CAP, actualMaxCount);
+
+            const initialCount = Math.floor(Math.random() * (rangeMax - MIN_ELLIPSE_COUNT_HARD_CAP + 1)) + MIN_ELLIPSE_COUNT_HARD_CAP;
+            
+            for (let i = 0; i < initialCount; i++) {
                 ellipses.push(new Ellipse());
             }
         }

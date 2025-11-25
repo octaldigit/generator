@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cell Migration</title>
+    <title>Deoxyribo Nucleic Acid</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             overflow: hidden;
-            background: #550000;
+            background: #46000F;
             font-family: 'Arial', sans-serif;
         }
 
@@ -43,32 +43,35 @@
         resize();
         window.addEventListener('resize', resize);
 
-        let animationPhase = 0;
-        let flashOpacity = 0;
-        const FLASH_DURATION_FRAMES = 30;
-        let flashFrame = 0;
-        let animationStartTime = Date.now();
-        const MAX_ANIMATION_DURATION_MS = 20000;
-        const FADE_START_RATIO = 0.7;
+        const BG_R = 70;
+        const BG_G = 0;
+        const BG_B = 15;
+        const FIXED_BG_COLOR = `rgb(${BG_R}, ${BG_G}, ${BG_B})`;
+        const FIXED_BG_TRAIL_COLOR = `rgba(${BG_R}, ${BG_G}, ${BG_B}, 0.05)`;
 
         const BACKGROUND_PARTICLE_COUNT = 100;
         const backgroundParticles = [];
         const BG_PARTICLE_SPEED = 0.05;
+        const BG_OPACITY_MIN = 0.1;
+        const BG_OPACITY_MAX = 0.35;
+
 
         class BackgroundParticle {
             constructor() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
                 this.size = Math.random() * 1.5 + 0.5;
-                this.color = `rgba(255, 255, 255, ${Math.random() * 0.15 + 0.05})`; 
+                this.color = `rgba(255, 255, 255, ${Math.random() * (BG_OPACITY_MAX - BG_OPACITY_MIN) + BG_OPACITY_MIN})`; 
             }
 
             update() {
                 this.x += Math.cos(Date.now() * 0.0001) * BG_PARTICLE_SPEED;
                 this.y += Math.sin(Date.now() * 0.0001) * BG_PARTICLE_SPEED;
                 
-                if (this.x < 0 || this.x > width) this.x = Math.random() * width;
-                if (this.y < 0 || this.y > height) this.y = Math.random() * height;
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
             }
 
             draw() {
@@ -93,97 +96,73 @@
         });
 
 
+        const MAIN_PARTICLE_COUNT = 300; 
+        const PARTICLE_COLORS = [
+            'rgba(255, 255, 255', 'rgba(200, 200, 200', 'rgba(150, 150, 150',
+            'rgba(180, 180, 180', 'rgba(220, 220, 220', 'rgba(170, 170, 170'
+        ];
+        
         class Particle {
-            constructor(angle, distance, color, speed) {
-                this.angle = angle;
-                this.distance = distance;
-                this.initialDistance = distance;
-                this.color = color;
-                this.speed = speed;
-                this.baseSize = 5;
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.baseX = this.x; 
+                this.baseY = this.y;
+                
+                this.move = Math.random() < 0.5; 
+                this.speed = Math.random() * 0.5 + 0.1; 
+                this.directionX = Math.random() * 2 - 1; 
+                this.directionY = Math.random() * 2 - 1; 
+
+                this.baseSize = Math.random() * 3 + 2; 
                 this.size = this.baseSize;
-                this.ellipseRatio = 1;
-                this.rotation = 0;
-                this.MAX_SIZE_MULTIPLIER = 3.0;
-
-                const randomAngle = Math.random() * Math.PI * 2;
-                this.directionX = Math.cos(randomAngle);
-                this.directionY = Math.sin(randomAngle);
-                this.currentX = centerX + Math.cos(this.angle) * this.distance;
-                this.currentY = centerY + Math.sin(this.angle) * this.distance;
-
+                this.color = PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)];
+                
                 this.noiseOffset = Math.random() * 1000;
-            }
-
-            reset() {
-                this.distance = this.initialDistance;
-                this.size = this.baseSize;
-                this.ellipseRatio = 1;
-                this.rotation = 0; 
-                this.currentX = centerX + Math.cos(this.angle) * this.distance;
-                this.currentY = centerY + Math.sin(this.angle) * this.distance;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.02; 
             }
 
             update() {
-                const distanceRatio = this.distance / this.initialDistance;
-                const accelerationFactor = 1.0 + Math.pow(distanceRatio * 0.5, 0.5); 
+                const timeFactor = Date.now() * 0.002;
                 
-                const randomNoiseX = Math.sin(Date.now() * 0.001 + this.noiseOffset) * 0.05;
-                const randomNoiseY = Math.cos(Date.now() * 0.001 + this.noiseOffset) * 0.05;
+                const noiseX = Math.sin(timeFactor + this.noiseOffset) * 0.5;
+                const noiseY = Math.cos(timeFactor * 0.8 + this.noiseOffset) * 0.5;
 
-                if (animationPhase === 0) {
-                    this.currentX += (this.directionX + randomNoiseX) * this.speed * accelerationFactor * 0.5;
-                    this.currentY += (this.directionY + randomNoiseY) * this.speed * accelerationFactor * 0.5;
-                    
-                    this.distance = Math.sqrt(
-                        Math.pow(this.currentX - centerX, 2) + 
-                        Math.pow(this.currentY - centerY, 2)
-                    );
-                    
-                    this.rotation += 0.01;
+                if (this.move) {
+                    this.x += this.directionX * this.speed * 0.1 + noiseX * 0.1;
+                    this.y += this.directionY * this.speed * 0.1 + noiseY * 0.1;
 
-                } else if (animationPhase === 1) {
-                    const dx = centerX - this.currentX;
-                    const dy = centerY - this.currentY;
-                    const distToCenter = Math.sqrt(dx * dx + dy * dy);
+                    if (this.x < 0) this.x = width;
+                    if (this.x > width) this.x = 0;
+                    if (this.y < 0) this.y = height;
+                    if (this.y > height) this.y = 0;
 
-                    if (distToCenter > this.initialDistance) {
-                        const normalizedDx = dx / distToCenter;
-                        const normalizedDy = dy / distToCenter;
-                        
-                        const movementFactor = this.speed * accelerationFactor * 0.5;
-                        this.currentX += (normalizedDx * movementFactor) + (randomNoiseX * 0.5);
-                        this.currentY += (normalizedDy * movementFactor) + (randomNoiseY * 0.5);
-                        this.distance = distToCenter;
-                    } else {
-                        this.currentX = centerX + Math.cos(this.angle) * this.initialDistance;
-                        this.currentY = centerY + Math.sin(this.angle) * this.initialDistance;
-                        this.distance = this.initialDistance;
-                    }
-                    
-                    this.rotation -= 0.01;
+                    this.baseX = this.x; 
+                    this.baseY = this.y;
+
+                } else {
+                    const oscillationScale = this.speed * 5; 
+                    this.x = this.baseX + Math.sin(timeFactor * this.speed + this.noiseOffset) * oscillationScale;
+                    this.y = this.baseY + Math.cos(timeFactor * this.speed * 0.9 + this.noiseOffset) * oscillationScale;
+
+                    this.x = Math.max(0, Math.min(width, this.x));
+                    this.y = Math.max(0, Math.min(height, this.y));
                 }
-                
-                const calculatedSize = this.baseSize + (this.distance / this.initialDistance) * 10;
-                this.size = Math.min(calculatedSize, this.baseSize * this.MAX_SIZE_MULTIPLIER);
-                
-                this.ellipseRatio = 1 + (this.distance / this.initialDistance) * 0.3;
+
+                this.size = this.baseSize + Math.sin(timeFactor * 0.5 + this.noiseOffset) * 0.5;
+                this.rotation += this.rotationSpeed;
             }
 
             draw() {
-                const x = this.currentX;
-                const y = this.currentY;
-                
-                const maxDim = Math.max(width, height);
-                const fadeStart = maxDim * FADE_START_RATIO;
+                const x = this.x;
+                const y = this.y;
                 
                 let alpha = 1;
-                if (this.distance > fadeStart) { 
-                    alpha = 1 - (this.distance - fadeStart) / (maxDim - fadeStart);
-                    alpha = Math.max(0, alpha); 
-                }
+                const flicker = Math.sin(Date.now() * 0.003 + this.noiseOffset) * 0.3 + 0.7;
                 
-                if (alpha === 0) return; 
+                let gradientInnerAlpha = alpha * 0.8 * flicker;
+                let gradientOuterAlpha = alpha * 0.4 * flicker;
 
                 ctx.save();
                 ctx.translate(x, y);
@@ -192,20 +171,20 @@
                 ctx.globalCompositeOperation = 'lighter';
                 
                 const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.size);
-                gradient.addColorStop(0, this.color.replace(')', `, ${alpha * 0.8})`));
-                gradient.addColorStop(0.5, this.color.replace(')', `, ${alpha * 0.4})`));
+                gradient.addColorStop(0, this.color.replace(')', `, ${gradientInnerAlpha})`));
+                gradient.addColorStop(0.5, this.color.replace(')', `, ${gradientOuterAlpha})`));
                 gradient.addColorStop(1, this.color.replace(')', `, 0)`));
                 
                 ctx.fillStyle = gradient;
                 ctx.beginPath();
-                ctx.ellipse(0, 0, this.size, this.size * this.ellipseRatio, 0, 0, Math.PI * 2);
+                ctx.arc(0, 0, this.size, 0, Math.PI * 2); 
                 ctx.fill();
                 
                 ctx.globalCompositeOperation = 'source-over';
-                ctx.strokeStyle = `rgba(255, 100, 100, ${alpha * 0.6})`;
+                ctx.strokeStyle = `rgba(255, 100, 100, ${alpha * 0.6 * flicker})`;
                 ctx.lineWidth = 0.5;
                 ctx.beginPath();
-                ctx.ellipse(0, 0, this.size, this.size * this.ellipseRatio, 0, 0, Math.PI * 2);
+                ctx.arc(0, 0, this.size, 0, Math.PI * 2);
                 ctx.stroke();
                 
                 ctx.restore();
@@ -213,108 +192,39 @@
         }
 
         const particles = [];
-        const PARTICLE_COLORS = [
-            'rgba(255, 255, 255', 'rgba(200, 200, 200', 'rgba(150, 150, 150',
-            'rgba(180, 180, 180', 'rgba(220, 220, 220', 'rgba(170, 170, 170'
-        ];
-        const SPIRAL_COUNT = 8;
-        const PARTICLES_PER_SPIRAL = 50;
 
         function initParticles() {
             particles.length = 0; 
-            
-            for (let s = 0; s < SPIRAL_COUNT; s++) {
-                const spiralOffset = (Math.PI * 2 / SPIRAL_COUNT) * s;
-                const colorIndex = s % PARTICLE_COLORS.length;
-                const speed = 0.25 + (s * 0.05); 
-                
-                for (let i = 0; i < PARTICLES_PER_SPIRAL; i++) {
-                    const angle = spiralOffset + (i * 0.2); 
-                    const distance = 30 + (i * 15); 
-                    
-                    particles.push(new Particle(
-                        angle,
-                        distance,
-                        PARTICLE_COLORS[colorIndex],
-                        speed
-                    ));
-                }
+            for (let i = 0; i < MAIN_PARTICLE_COUNT; i++) {
+                particles.push(new Particle());
             }
         }
 
         initParticles();
-        const OFF_SCREEN_THRESHOLD = 1.2; 
+        window.addEventListener('resize', () => {
+            resize();
+            initParticles();
+        });
+
 
         function animate() {
-            const currentTime = Date.now();
-            const elapsedTime = currentTime - animationStartTime;
-            const maxDim = Math.max(width, height);
-            
-            const allOffScreen = particles.every(p => p.distance > maxDim * OFF_SCREEN_THRESHOLD);
-            const timeExpired = elapsedTime > MAX_ANIMATION_DURATION_MS;
-            const allReturned = particles.every(p => p.distance <= p.initialDistance + 5); 
-            
-            if (animationPhase === 0 && (allOffScreen || timeExpired)) {
-                animationPhase = 1; 
-            }
-            
-            if (animationPhase === 1 && allReturned) {
-                animationPhase = 2; 
-                flashFrame = 0;
-            }
-            
-            ctx.fillStyle = 'rgb(85, 0, 0)';
+            ctx.fillStyle = FIXED_BG_COLOR; 
             ctx.fillRect(0, 0, width, height);
-
+            
+            ctx.fillStyle = FIXED_BG_TRAIL_COLOR; 
+            ctx.fillRect(0, 0, width, height);
+            
             ctx.globalCompositeOperation = 'source-over';
             backgroundParticles.forEach(p => {
                 p.update();
                 p.draw();
             });
 
-
-            if (animationPhase === 0 || animationPhase === 1) {
-                ctx.fillStyle = 'rgba(85, 0, 0, 0.05)'; 
-                ctx.fillRect(0, 0, width, height);
-
-                ctx.globalCompositeOperation = 'lighter';
-                particles.forEach(particle => {
-                    particle.update();
-                    particle.draw();
-                });
-            }
-
-            else if (animationPhase === 2) {
-                flashFrame++;
-                flashOpacity = Math.min(1, flashFrame / FLASH_DURATION_FRAMES);
-                
-                ctx.fillStyle = 'rgba(85, 0, 0, 0.05)';
-                ctx.fillRect(0, 0, width, height);
-                
-                ctx.globalCompositeOperation = 'lighter';
-                particles.forEach(particle => {
-                    particle.draw();
-                });
-                
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.fillStyle = `rgba(255, 255, 255, ${flashOpacity})`;
-                ctx.fillRect(0, 0, width, height);
-                
-                if (flashOpacity >= 1) {
-                    animationPhase = 3; 
-                }
-            }
-
-            else if (animationPhase === 3) {
-                ctx.fillStyle = 'rgb(85, 0, 0)';
-                ctx.fillRect(0, 0, width, height);
-                
-                particles.forEach(particle => particle.reset()); 
-                animationPhase = 0; 
-                flashOpacity = 0;
-                flashFrame = 0;
-                animationStartTime = Date.now();
-            }
+            ctx.globalCompositeOperation = 'lighter'; 
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
 
             requestAnimationFrame(animate);
         }
